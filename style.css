@@ -1,9 +1,9 @@
-:root {
-    --color-black: #000;
-    --color-white: #fff;
-    --gray-1: rgb(186, 186, 186);
-    --height-1: 40px;
-    --border-gray: 1px solid rgb(186, 186, 186);
+:root{
+ --color-black: #000;
+ --color-white: #fff;
+ --gray-1: rgb(186, 186, 186);
+ --height-1: 40px;
+ --border-gray: 1px solid rgb(186, 186, 186);
 }
 
 body{
@@ -12,13 +12,13 @@ body{
  background-color: blue;
 }
 
-.dropdown{
+.js-dropdown{
  float: left;
  position: relative;
  display:inline-block ;
 }
 
-.dropdown__list{
+.js-dropdown__list{
  display: none;
  position: absolute;
  left: 0;
@@ -31,11 +31,11 @@ body{
  z-index: 1;
 }
 
-.dropdown__list-visible{
+.js-dropdown__list-visible{
  display: block;
 }
 
-.dropdown__item{
+.js-dropdown__item{
  margin: 0;
  border: var(--border-gray);
  padding: 13px 20px;
@@ -43,22 +43,36 @@ body{
  cursor: pointer;
 }
 
-.dropdown__item:first-child{
+.js-dropdown__item:first-child{
  border-top: 0;
 }
 
-.dropdown__item:last-child{
+.js-dropdown__item:last-child{
  border-bottom: var(--border-gray);
 }
 
-.dropdown__item:hover{
+.js-dropdown__item:hover{
  background: var(--gray-1);
 } 
 
-.drop{
+.js-drop{
  text-align: left;
  box-sizing: border-box;
  cursor: pointer;
+}
+
+.js-drop::after{
+ content: "";
+ position: absolute;
+ top: 50%;
+ right: 15px;
+ transform: translateY(-50%);
+ width: 0;
+ height: 0;
+ border-width: 10px 4px 0 4px;
+ border-color: var(--gray-1) transparent transparent transparent;
+ border-style: solid;
+ pointer-events: none;
 }
 
 .dropdown-zero{
@@ -75,7 +89,7 @@ body{
  font-size: 12px;
 }
   
-/* .dropdown-one{
+.dropdown-one{
  height: var(--height-1);
  width: 150px;
  background: var(--color-white);
@@ -85,12 +99,9 @@ body{
 
 .dropdown-one-wrapper{
  margin: 20px;
-} */
+}
 
-
-
-/*
-.dropdown-two{
+/* .dropdown-two{
  height: var(--height-1);
  width: 170px;
  background: var(--color-white);
@@ -100,73 +111,6 @@ body{
 
 .dropdown-two-wrapper{
  margin: 30px;
-}*/
-
-
-
-/*
-.dropdown-three{
- height: var(--height-1);
- width: 140px;
- background: var(--color-white);
- border: var(--border-gray);
- padding: 7px;
-} 
-
-.dropdown-three-wrapper{
- margin: 40px;
-}*/
-
-
-/* 
-.dropdown-four{ 
- width: 350px;
- text-align: left;
- background: var(--color-white);
- border: var(--border-gray);
- height: var(--height-1);
- padding: 4px;
- cursor: pointer;
- padding: 7px;
-}
-
-.dropdown-four-wrapper{
- margin: 50px;
 } */
 
 
-/*
-.dropdown-five{
- width: 400px;
- height: var(--height-1);
- background: var(--color-white);
-  border: var(--border-gray);
-
- padding: 7px;
-}
- 
-.dropdown-five-wrapper{
- margin: 60px;
-} */
-
-.dropdown-zero::after,
- .dropdown-one::after
-  /* .dropdown-two::after, */
-   /* .dropdown-three::after, */
-    /* .dropdown-four::after, */
-     /* .dropdown-five::after */
-     {
- content: "";
- position: absolute;
- top: 50%;
- right: 15px;
- transform: translateY(-50%);
- /* рисуем треугольник */
- width: 0;
- height: 0;
- border-width: 10px 4px 0 4px;
- border-color: var(--gray-1) transparent transparent transparent;
- border-style: solid;
- /* снимаем клик с треугольника */
- pointer-events: none;
-}

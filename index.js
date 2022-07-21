@@ -7,46 +7,129 @@ const region = [
 
 const dropdownZero = document.querySelector('.dropdown-zero')
 
+const listVisible = 'js-dropdown__list-visible'
+const selectorDrop = '.js-drop'
+const selectorDropDownList = '.js-dropdown__list'
+const selectorDropDownListItem = '.js-dropdown__item'
 
 
 
+
+/**
+ * Класс для создания выпадающих списков 
+ */
 class Select {
+    /**
+    *  конструктор класса для создания выпадающего списка
+    * @constructor
+    * @param {object} array массив объектов с элементами выпадающего списка
+    */
     constructor(array) {
         try {
             if (!Array.isArray(array)) { // проверка параметра на массив
                 throw Error('аргумент ' + array + ' не является массивом')
             }
-                this.array = array     
+            this.array = array     
         } catch (err) {
             console.error(err)          
-          }       
+        }       
     }
 
-    init(cl){ 
+    /**
+    * метод инициализации компонента
+    * @param {element} domElement Dom элемент для инициализации
+    */
+    init(domElement){ 
         try{
-            if (!(cl instanceof Element) ) {// проверка параметра на массив
-                throw Error(cl + ' не является DOM елементом')
+            if (!(domElement instanceof Element)) {// проверка параметра на DOM элемент
+                throw Error(domElement + ' не является DOM элементом')
             }
-            if (Array.isArray(this.array)) {
-                let clone = cl.cloneNode(true);// создаю клон DOM элемента
-                clone.classList.add('drop')// добавляю клону класс drop, чтобы можно было добавлять текст из элементов списка
-                let divWrapper = document.createElement('div');// создаю див обвёрту для клона
-                divWrapper.className = "dropdown " // присваиваю обёртке класс dropdown , для того чтобы можно было отслеживать все выпадающие списки
-                divWrapper.className += cl.classList + '-wrapper' // присваиваю обёртке еще один класс, индивидуальный, 
-                // для того чтобы можно было позиционировать весь элемент на странице
-                cl.after(divWrapper)// добавляю после самого параметра элемента DOM обвёртку
-                divWrapper.appendChild(clone)// добавляю внутрь обвёртки клонированный DOM элемент
-                cl.remove()// удаляю параметр
-                divWrapper.innerHTML += `<div class="dropdown__list"></div>`// добавляю внутрь обёртки сам блок выпадающего списка
-    
-                this.array.forEach((el) => {// прохожу по самому массиву методом forEach
-                divWrapper.querySelector('.dropdown__list').innerHTML += `<div class="dropdown__item" >${ el.name}</div>`})// добавляю в блок выпадающего списка сами элемента массива
-            }      
-        }catch(Err){
+            if (!(Array.isArray(this.array))) {
+                throw Error('аргумент ' + this.array + ' не является массивом')
+            }
+            let clone = domElement.cloneNode(true);// создаю клон DOM элемента
+            clone.classList.add('js-drop')// добавляю клону класс drop, чтобы можно было добавлять текст из элементов списка
+            let divWrapper = document.createElement('div');// создаю див обвёрту для клона
+            divWrapper.className = "js-dropdown " // присваиваю обёртке класс dropdown , для того чтобы можно было отслеживать все выпадающие списки
+            divWrapper.className += domElement.classList + '-wrapper' // присваиваю обёртке еще один класс, индивидуальный, 
+            // для того чтобы можно было позиционировать весь элемент на странице
+            domElement.after(divWrapper)// добавляю после самого параметра элемента DOM обвёртку
+            divWrapper.appendChild(clone)// добавляю внутрь обвёртки клонированный DOM элемент
+            domElement.remove()// удаляю параметр
+            divWrapper.innerHTML += `<div class="js-dropdown__list"></div>`// добавляю внутрь обёртки сам блок выпадающего списка
+            this.array.forEach((el) => {// прохожу по самому массиву методом forEach
+            divWrapper.querySelector('.js-dropdown__list').innerHTML += `<div class="js-dropdown__item" >${ el.name}</div>`})// добавляю в блок выпадающего списка сами элемента массива            
+            this._initHandlers(divWrapper)
+        } catch (Err) {
             console.error(Err) 
         }        
-   }
+    }
+
+    /**
+    * Метод обработки инициализации
+    * @param {element} dropDownWrapper DOM элемент, внутри которого будут отлавливаться события 'click' 
+    */
+    _initHandlers(dropDownWrapper) {
+               
+        const drop = dropDownWrapper.querySelector(selectorDrop)
+        const dropDownList = dropDownWrapper.querySelector(selectorDropDownList)
+        const dropDownListItems = dropDownList.querySelectorAll(selectorDropDownListItem)
+        
+        // клик по кнопке, отрыть/закрыть
+        dropDownWrapper.addEventListener('click', () => {
+            this._switchSpisok(dropDownList, listVisible)
+        })
+     
+        // клик по списку, подстановка текста , закрыть select 
+        dropDownListItems.forEach( (listItem) => { 
+            listItem.addEventListener('click', () => {
+                this._addTextInDomElement(drop, listItem)// добавляем элементу с селектором drop текст одного из элементов списка
+                this._removeDropDownList(dropDownList, listVisible)// закрываем выпадающий список при выборе элемента списка 
+            })
+        })
+        
+        // закрытие dropdown при клике по странице, не внутри dropdown!!!
+        document.addEventListener('click', (e) => { 
+            if (e.target !== drop) {//если клик происходит не по элементу DOM с классом drop
+                this._removeDropDownList(dropDownList, listVisible)// то выпадающий список закрывается
+            } 
+        })
+        
+        // нажатие на Tab чтобы закрыть dropdown
+        document.addEventListener('keydown', () => {  
+            this._removeDropDownList(dropDownList, listVisible)
+        })
+    }
+
+    /**
+    * Метод переключения выпадающего списка
+    * @param {element} dropDownList DOM элемент в котором необходимо добавлять/удалять селектор 
+    * @param {string} listVisible название класса, который необходимо добавлять/удалять
+    */
+    _switchSpisok(dropDownList, listVisible) {
+        dropDownList.classList.toggle(listVisible)
+    }
+
+    /**
+    * Метод добавления текста в DOM элемент
+    * @param {element} drop DOM элемент в который необходимо добавлять текст
+    * @param {element} listItem DOM элемент из которого необходимо взять текст
+    */
+    _addTextInDomElement(drop, listItem) {
+        drop.innerText = listItem.innerText
+    }
+
+    /**
+    * Метод скрытия выпадающего списка
+    * @param {element} dropDownList DOM элемент в котором необходимо удалить селектор 
+    * @param {string} listVisible название селектора, который необходимо удалить
+    */
+    _removeDropDownList(dropDownList, listVisible) {
+        dropDownList.classList.remove(listVisible)
+    } 
 }
+
+
 
 
 
@@ -54,7 +137,6 @@ class Select {
 const selectInstanceZero = new Select(region) // создание экземпляра класса, с массивом ввиде аргумента
     
 selectInstanceZero.init(dropdownZero) // вызов метода init с аргументом ввиде DOM элемента
-
 
 
 // const selectInstance = new Select([
@@ -67,7 +149,7 @@ selectInstanceZero.init(dropdownZero) // вызов метода init с арг�
 // selectInstance.init(document.querySelector('.dropdown-one'))
 
 
-//  const selectInstanceTwo = new Select([
+// const selectInstanceTwo = new Select([
 //     {name: "край", value: 1},
 //     {name: "область", value: 2},
 //     {name: "страна", value: 3},
@@ -77,72 +159,7 @@ selectInstanceZero.init(dropdownZero) // вызов метода init с арг�
 // selectInstanceTwo.init(document.querySelector('.dropdown-two'))
 
 
- // const selectInstanceThree = new Select([
- //     {name: "собака", value: 1},
- //     {name: "кошка", value: 2},
- //     {name: "лошадь", value: 3},
- //     {name: "аппельсин", value: 4}
- //     ])
-    
- // selectInstanceThree.init(document.querySelector('.dropdown-three'))
+ 
 
-
- // const selectInstanceFour = new Select([
- //     {name: "тыква", value: 1},
- //     {name: "огурец", value: 2},
- //     {name: "морковь", value: 3},
- //     {name: "свекла", value: 4},
- //     {name: "капуста", value: 5}
- //     ])
-    
- // selectInstanceFour.init(document.querySelector('.dropdown-four'))
-
-
- // const selectInstanceFive = new Select([
- //     {name: "тттттттттттттттттттттттттттттттт", value: 1},
- //     {name: "ооооооооооооооооооооооооооооооо", value: 2},
- //     {name: "ммммммммммммммммммммммммммммммм", value: 3},
- //     {name: "ссссссссссс", value: 4},
- //     {name: "кккккккккккккккккккккккккккккккккккккккк", value: 5}
- //     ])
-        
- // selectInstanceFive.init(document.querySelector('.dropdown-five'))
 
  
-document.querySelectorAll('.dropdown').forEach((dropDownWrapper) => { // отслеживаем все классы dropdown на странице!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    const drop = dropDownWrapper.querySelector('.drop')
-    const dropDownList = dropDownWrapper.querySelector('.dropdown__list')
-    const dropDownListItems = dropDownList.querySelectorAll('.dropdown__item')
-
-    // клик по кнопке, отрыть/закрыть
-    dropDownWrapper.addEventListener('click', () => {
-        dropDownList.classList.toggle('dropdown__list-visible')
-    })
- 
-    // клик по списку, подстановка текста , закрыть select 
-    dropDownListItems.forEach( (listItem) => { 
-        listItem.addEventListener('click', (e) => {
-            drop.innerText = listItem.innerText;// добавляем элементу с классом drop текст одного из элементов списка
-            dropDownList.classList.remove('dropdown__list-visible')// закрываем выпадающий список при выборе елемента списка 
-        })
-    })
-    
-    // закрытие dropdown при клике по странице, не внутри dropdown!!!
-    document.addEventListener('click', (e) => { 
-        if (e.target !== dropDownWrapper.querySelector('.drop')) {//если клик происходит не по елементу DOM с классом drop
-             dropDownList.classList.remove('dropdown__list-visible')// то выпадающий список закрывается
-        } 
-    })
-    
-    // нажатие на Tab чтобы закрыть dropdown
-    document.addEventListener('keydown', (e) => {
-        if (e.key = 'Tab') {
-            dropDownList.classList.remove('dropdown__list-visible')
-        }
-    })
-})
-
-
-
-
